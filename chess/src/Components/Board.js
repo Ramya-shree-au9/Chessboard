@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react'
+import React,{useState} from 'react'
 import Row from './Row'
 import './board.css'
 import BlackKing from './images/BlackKing.png';
@@ -34,6 +34,7 @@ export const Board = () => {
     const [turn,setTurn] = useState("White")
     const [hasKingMoved,setHasKingMoved] = useState([false, false])
     const [haveRooksMoved,setHaveRooksMoved] = useState([false, false, false, false])
+    const [gameend,setGame] = useState('')
         
     const renderRow=(i)=> {
         return (
@@ -88,8 +89,9 @@ export const Board = () => {
         }
     }
   
+    var endPos
     const  checkWhitePawn=(initRow, initCol, endRow, endCol, board)=> {
-        console.log(initRow, initCol, endRow, endCol, board)
+        endPos = board[endRow][endCol]
         if(initCol === endCol) {
             if(board[endRow][endCol] === Empty) {
                 if (initRow === 6) {
@@ -104,6 +106,9 @@ export const Board = () => {
             }
         } else if (endCol === initCol - 1 || endCol === initCol + 1) {
             if(endRow === initRow -1 && isBlackPiece(board[endRow][endCol])) {
+                if(endPos === BlackKing){
+                    setGame('Game over')
+                }
                 return true;
             }
         }
@@ -111,6 +116,7 @@ export const Board = () => {
     }
 
     const checkBlackPawn=(initRow, initCol, endRow, endCol, board)=> {
+        endPos = board[endRow][endCol]
         if(initCol === endCol) {
             if(isEmpty(board[endRow][endCol])) {
                 if (initRow === 1) {
@@ -126,6 +132,9 @@ export const Board = () => {
         } else if (endCol === initCol - 1 || endCol === initCol + 1) {
             if(endRow === initRow + 1 && !(isBlackPiece(board[endRow][endCol]))
                 && !isEmpty(board[endRow][endCol])) {
+                    if(endPos === WhiteKing){
+                        setGame('Game over')
+                    }
                 return true;
             }
         }
@@ -139,6 +148,9 @@ export const Board = () => {
     const isSameColor=(endPos, color)=> {
         if(!(isEmpty(endPos))) {
             if(color !== isBlackPiece(endPos)) {
+                if(endPos === BlackKing || endPos === WhiteKing){
+                    setGame('Game over')
+                }
                 return true;
             }
             return false;
@@ -146,43 +158,42 @@ export const Board = () => {
         return true;
     }
 
+   
    const checkBishop=(initRow, initCol, endRow, endCol, board, color)=> {
+    endPos = board[endRow][endCol]
         if(endRow > initRow) {
             if(endCol > initCol) {
                 for(var i = 1; i <= 7 - Math.max(initRow, initCol); i++) {
                     if(initRow + i === endRow && initCol + i === endCol) {
-                        var endPos = board[endRow][endCol];
+                        
                         return isSameColor(endPos, color);
                     } else if (!(isEmpty(board[initRow + i][initCol + i]))) {
                         return false;
                     }
                 }
             } else {
-                for(var i = 1; i <= Math.min(7 - initRow, initCol); i++) {
-                    if(initRow + i === endRow && initCol - i === endCol) {
-                        var endPos = board[endRow][endCol];
+                for(var j = 1; j <= Math.min(7 - initRow, initCol); j++) {
+                    if(initRow + j === endRow && initCol - j === endCol) {
                         return isSameColor(endPos, color);
-                    } else if (!(isEmpty(board[initRow + i][initCol - i]))) {
+                    } else if (!(isEmpty(board[initRow + j][initCol - j]))) {
                         return false;
                     }
                 }
             }
         } else {
             if(endCol > initCol) {
-                for(var i = 1; i <= Math.min(initRow, 7 - initCol); i++) {
-                    if(initRow - i === endRow && initCol + i === endCol) {
-                        var endPos = board[endRow][endCol];
+                for(var k = 1; k <= Math.min(initRow, 7 - initCol); k++) {
+                    if(initRow - k === endRow && initCol + k === endCol) {
                         return isSameColor(endPos, color);
-                    } else if (!(isEmpty(board[initRow - i][initCol + i]))) {
+                    } else if (!(isEmpty(board[initRow - k][initCol + k]))) {
                         return false;
                     }
                 }
             } else {
-                for(var i = 1; i <= Math.min(initRow, initCol); i++) {
-                    if(initRow - i === endRow && initCol - i === endCol) {
-                        var endPos = board[endRow][endCol];
+                for(var l = 1; l <= Math.min(initRow, initCol); l++) {
+                    if(initRow -  l=== endRow && initCol - l === endCol) {
                         return isSameColor(endPos, color);
-                    } else if (!(isEmpty(board[initRow - i][initCol - i]))) {
+                    } else if (!(isEmpty(board[initRow - l][initCol - l]))) {
                         return false;
                     }
                 }
@@ -192,6 +203,7 @@ export const Board = () => {
     }
 
     const checkKnight=(initRow, initCol, endRow, endCol, board, color)=> {
+        endPos = board[endRow][endCol]
         if((endRow === initRow + 2 && endCol === initCol + 1)
             || (endRow === initRow + 2 && endCol === initCol - 1)
             || (endRow === initRow - 2 && endCol === initCol + 1)
@@ -200,9 +212,13 @@ export const Board = () => {
             || (endRow === initRow + 1 && endCol === initCol - 2)
             || (endRow === initRow - 1 && endCol === initCol + 2)
             || (endRow === initRow - 1 && endCol === initCol - 2)) {
-                var endPos = board[endRow][endCol];
+                
                 if(!(isEmpty(endPos))) {
                     if(color !== isBlackPiece(endPos)) {
+                        if(endPos === BlackKing || endPos === WhiteKing){
+                            setGame('Game over')
+                        }
+                       
                         return true;
                     }
                     return false;
@@ -213,43 +229,40 @@ export const Board = () => {
     }
 
    const checkRook=(initRow, initCol, endRow, endCol, board, color)=> {
-
+        endPos = board[endRow][endCol]
         if(endCol === initCol) {
             if(endRow > initRow) {
                 for(var i = 1; i <= endRow - initRow; i++) {
                     if (initRow + i === endRow) {
-                        var endPos = board[endRow][endCol];
                         return isSameColor(endPos, color);
                     } else if (!(isEmpty(board[initRow + i][initCol]))) {
                         return false;
                     }
                 }
             } else {
-                for(var i = 1; i <= initRow-endRow; i++) {
-                    if (initRow - i === endRow) {
-                        var endPos = board[endRow][endCol];
+                for(var j = 1; j <= initRow-endRow; j++) {
+                    if (initRow - j === endRow) {
                         return isSameColor(endPos, color);
-                    } else if (!(isEmpty(board[initRow - i][initCol]))) {
+                    } else if (!(isEmpty(board[initRow - j][initCol]))) {
                         return false;
                     }
                 }
             }
         } else if (endRow === initRow) {
             if(endCol > initCol) {
-                for(var i = 1; i <= endCol - initCol; i++) {
-                    if (initCol + i === endCol) {
-                        var endPos = board[endRow][endCol];
+                for(var k = 1;k <= endCol - initCol; k++) {
+                    if (initCol + k === endCol) {
+                    
                         return isSameColor(endPos, color);
-                    } else if (!(isEmpty(board[initRow][initCol + i]))) {
+                    } else if (!(isEmpty(board[initRow][initCol + k]))) {
                         return false;
                     }
                 }
             } else {
-                for(var i = 1; i <= initCol - endCol; i++) {
-                    if (initCol - i === endCol) {
-                        var endPos = board[endRow][endCol];
+                for(var l = 1; l <= initCol - endCol; l++) {
+                    if (initCol - l === endCol) {
                         return isSameColor(endPos, color);
-                    } else if (!(isEmpty(board[initRow][initCol - i]))) {
+                    } else if (!(isEmpty(board[initRow][initCol - l]))) {
                         return false;
                     }
                 }
@@ -275,9 +288,12 @@ export const Board = () => {
             || (endRow === initRow - 1 && endCol === initCol + 1)
             || (endRow === initRow - 1 && endCol === initCol)
             || (endRow === initRow - 1 && endCol === initCol - 1)) {
-                var endPos = board[endRow][endCol];
+                endPos = board[endRow][endCol];
                 if(!(isEmpty(endPos))) {
                     if(color !== isBlackPiece(endPos)) {
+                        if(endPos === BlackKing || endPos === WhiteKing){
+                            setGame('Game over')
+                        }
                         setHasKingMoved( !color ? [true, hasKingMoved[1]] : [hasKingMoved[0], true]);
                         return true;
                     }
@@ -336,11 +352,22 @@ export const Board = () => {
         if (isLegal(row, col, k, j, piece, board)) {
             movePiece(k, j, row, col, piece);
         }
+
+    }
+
+    const newGame=()=>{
+        window.location.reload(false);
     }
 
     return (
         <div>
+           
            <div className = "fullBoard">
+               {gameend &&  
+               <div className='gameend'>
+               <span >{gameend}, </span><span className='newgame' onClick={newGame}>Start New Game</span>
+               </div>}
+          
                 <div className = "center">
                     {renderRow(0)}
                     {renderRow(1)}

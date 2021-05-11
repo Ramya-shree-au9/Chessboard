@@ -20,9 +20,35 @@ button {
 .fullBoard {
     display: flex;
     flex-direction: column;
-    margin-left: 25%;
+    margin:0 25% 0 25% ;
+    position: absolute;
 }
 
 .row{
     display: flex;
 }
+
+.gameend{
+    text-align: center;
+    top:350px;
+    padding: 4% 2%;
+    border: 2px solid black;
+    background-color: red;
+    /* z-index: 2; */
+    position: relative;
+}
+
+.newgame{
+    color: blue;
+    border: 2px solid pink;
+    cursor: pointer;
+}
+
+
+@media only screen and (max-width: 1024px) {
+
+    .fullBoard {
+        margin:auto;
+    }
+    
+  }
